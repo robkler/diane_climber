@@ -12,6 +12,11 @@ diane_climber::DianeClimber::DianeClimber()
 
 }
 
+void diane_climber::DianeClimber::ClimberStair()
+{
+    usleep(1000);
+}
+
 
 void diane_climber::DianeClimber::onInit()
 {
@@ -61,8 +66,18 @@ void diane_climber::DianeClimber::InternalCycleProcedure()
 }
 
 
+
+//double velLin = 0;
+//double velAng = 0;
+//double velArmF = 0;
+//double velArmB = 0;
+//double posArmF = 0;
+//double posArmB = 0;
+
+
 diane_climber::DianeClimber::~DianeClimber()
 {
     StopInternalCycle();
 }
+
 

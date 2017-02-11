@@ -14,7 +14,6 @@
 #include <boost/thread.hpp>
 
 
-
 using namespace std;
 
 
@@ -56,7 +55,7 @@ protected:
 public:
     DianeClimber();
 
-
+    void ClimberStair();
     void onInit();
 
 
