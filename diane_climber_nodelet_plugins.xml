@@ -1,0 +1,5 @@
+<library path="lib/libdiane_climber_lib">
+  <class name="diane_climber/DianeClimberNodelet" type="diane_climber::DianeClimberNodelet" base_class_type="nodelet::Nodelet">
+    <description>This is the Diane_Climber Nodelet.</description>
+  </class>
+</library>
