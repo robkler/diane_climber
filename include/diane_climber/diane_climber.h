@@ -10,6 +10,8 @@
 
 #include <ros/ros.h>
 
+#include <controller/Control.h>
+#include <controller/RequestID.h>
 
 #include <boost/thread.hpp>
 
@@ -18,6 +20,30 @@ using namespace std;
 
 
 namespace diane_climber {
+
+class DianeClimberMsg
+{
+protected:
+
+    public:
+    DianeClimberMsg();
+
+    double velLin;
+    double velAng;
+    double velArmF;
+    double velArmB;
+    double posArmF;
+    double posArmB;
+
+
+
+    virtual ~DianeClimberMsg();
+};
+
+
+
+
+
 
 /*!
  * \class DianeClimber
@@ -57,6 +83,9 @@ public:
 
     void ClimberStair();
     void onInit();
+    DianeClimberMsg* CreateMsgPos(double velLin, double velAng , double posArmF, double posArmB );
+    DianeClimberMsg* CreateMsgVel(double velLin, double velAng , double velArmF, double velArmB);
+
 
 
     /*!

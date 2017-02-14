@@ -33,16 +33,31 @@ diane_climber::DianeClimberNodelet::DianeClimberNodelet()
 
 }
 
+unsigned char  diane_climber::DianeClimberNodelet::GetNewControlID()
+{
+    controller::RequestIDRequest req;
+    controller::RequestIDResponse res;
+//    if (srvOriginIDcli.call(req, res))
+//        return res.id;
+//    else
+//        return 0;
+}
+
 
 void diane_climber::DianeClimberNodelet::onInit()
 {
     nodeHandle = getNodeHandle();
+
+    std::string controllerName;
+//    privateNH.param("controler_name", controllerName, (std::string)"diane_controller");
 
     Pubcontroll = nodeHandle.advertise <std_msgs::Float64MultiArray>("teste",10);
 
     msgBoolSub = nodeHandle.subscribe <std_msgs::Bool> ("/bool_msg", 10, &DianeClimberNodelet::TreatBoolCallBack, this);
 
     msgStair = nodeHandle.subscribe <diane_octomap::StairArrayInfo> ("/diane_octomap/Modeled_Stairs_Info_All", 10, &DianeClimberNodelet::TreatArrayStairCallBack, this);
+
+//    srvOriginIDcli = nodeHandle.serviceClient<controller::RequestID>(controllerName + "/request_id");
 
     //Iniciando o Ciclo do Thread
 

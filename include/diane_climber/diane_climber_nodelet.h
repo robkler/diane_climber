@@ -18,6 +18,9 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Bool.h>
 
+#include <controller/Control.h>
+#include <controller/RequestID.h>
+
 namespace diane_climber {
 
 
@@ -34,12 +37,14 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 
     ros::Subscriber msgBoolSub;
     ros::Subscriber msgStair;
-
+    ros::Subscriber srvOriginIDcli;
 
 protected:
 
 
 public:
+    unsigned char GetNewControlID();
+
     void TreatBoolCallBack(const std_msgs::Bool::ConstPtr &msg);
     void TreatStairCallBack(const diane_octomap::StairInfoConstPtr &msg);
     void TreatArrayStairCallBack(const diane_octomap::StairArrayInfoConstPtr &msg);

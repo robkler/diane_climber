@@ -12,16 +12,15 @@ diane_climber::DianeClimber::DianeClimber()
 
 }
 
-void diane_climber::DianeClimber::ClimberStair()
-{
-    usleep(1000);
-}
+
 
 
 void diane_climber::DianeClimber::onInit()
 {
     StartInternalCycle();
 }
+
+
 
 
 void diane_climber::DianeClimber::StartInternalCycle()
@@ -66,13 +65,44 @@ void diane_climber::DianeClimber::InternalCycleProcedure()
 }
 
 
+void diane_climber::DianeClimber::ClimberStair()
+{
+    // subir armF
+    CreateMsgPos(0,0,90,0);
+    //Andar em direçao a escada e ir verificando o acelerometro
+    CreateMsgVel(0.2,0,0.2,0);
+    // Quando estiver em cima da escada subir controladamente e verificar o acelerometro para quando ele começar a abaixar
+    CreateMsgVel(0.2,0,0,0);
+    //abaixar o armF
+    CreateMsgPos(0,0,0,0);
+    //andar lentamente para sair da escada
+    CreateMsgVel(0.1,0,0,0);
+    usleep(1000);
+}
 
-//double velLin = 0;
-//double velAng = 0;
-//double velArmF = 0;
-//double velArmB = 0;
-//double posArmF = 0;
-//double posArmB = 0;
+
+diane_climber::DianeClimberMsg* diane_climber::DianeClimber::CreateMsgPos(double velLin, double velAng , double posArmF, double posArmB )
+{
+    DianeClimberMsg* Msg = new DianeClimberMsg();
+    Msg->posArmB = posArmB;
+    Msg->posArmF = posArmF;
+    Msg->velAng = velAng;
+    Msg->velLin = velLin;
+
+    return Msg;
+}
+
+diane_climber::DianeClimberMsg *diane_climber::DianeClimber::CreateMsgVel(double velLin, double velAng, double velArmF, double velArmB)
+{
+    DianeClimberMsg* Msg = new DianeClimberMsg();
+    Msg->velArmB = velArmB;
+    Msg->velArmF = velArmF;
+    Msg->velAng = velAng;
+    Msg->velLin = velLin;
+
+    return Msg;
+}
+
 
 
 diane_climber::DianeClimber::~DianeClimber()
@@ -80,4 +110,15 @@ diane_climber::DianeClimber::~DianeClimber()
     StopInternalCycle();
 }
 
+//Diane Climber MSG
+//----------------------------------------------------------------------------------------------------------------------------------
 
+diane_climber::DianeClimberMsg::DianeClimberMsg()
+{
+
+}
+
+diane_climber::DianeClimberMsg::~DianeClimberMsg()
+{
+
+}
