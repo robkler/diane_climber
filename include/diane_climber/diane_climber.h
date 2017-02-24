@@ -9,6 +9,7 @@
 
 
 #include <ros/ros.h>
+#include <atomic>
 
 #include <controller/Control.h>
 #include <controller/RequestID.h>
@@ -76,12 +77,12 @@ class DianeClimber
 protected:
     /// Mutex used to control the internal cycle thread.
     boost::mutex mutStartStop;
-
+    std::atomic<double> kinectAngle;
 
 public:
     DianeClimber();
 
-    void ClimberStair();
+    void ClimberStair(const float angle,const float dist);
     void onInit();
     DianeClimberMsg* CreateMsgPos(double velLin, double velAng , double posArmF, double posArmB );
     DianeClimberMsg* CreateMsgVel(double velLin, double velAng , double velArmF, double velArmB);

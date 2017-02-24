@@ -15,6 +15,7 @@
 #include <diane_octomap/StairInfo.h>
 #include <diane_octomap/StairArrayInfo.h>
 
+#include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Bool.h>
 
@@ -38,6 +39,7 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
     ros::Subscriber msgBoolSub;
     ros::Subscriber msgStair;
     ros::Subscriber srvOriginIDcli;
+    ros::Subscriber subKinectAngle;
 
 protected:
 
@@ -48,7 +50,7 @@ public:
     void TreatBoolCallBack(const std_msgs::Bool::ConstPtr &msg);
     void TreatStairCallBack(const diane_octomap::StairInfoConstPtr &msg);
     void TreatArrayStairCallBack(const diane_octomap::StairArrayInfoConstPtr &msg);
-
+    void TreatKinectAngleCallBack (const std_msgs::Float64ConstPtr &msg);
 
     DianeClimberNodelet();
     void onInit();

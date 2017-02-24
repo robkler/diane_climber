@@ -28,6 +28,8 @@ void diane_climber::DianeClimberNodelet::TreatArrayStairCallBack(const diane_oct
     }
 }
 
+
+
 diane_climber::DianeClimberNodelet::DianeClimberNodelet()
 {
 
@@ -57,6 +59,7 @@ void diane_climber::DianeClimberNodelet::onInit()
 
     msgStair = nodeHandle.subscribe <diane_octomap::StairArrayInfo> ("/diane_octomap/Modeled_Stairs_Info_All", 10, &DianeClimberNodelet::TreatArrayStairCallBack, this);
 
+    subKinectAngle = nodeHandle.subscribe <std_msgs::Float64> ("/cur_tilt_angle", 10, &DianeClimberNodelet::TreatKinectAngleCallBack, this);
 //    srvOriginIDcli = nodeHandle.serviceClient<controller::RequestID>(controllerName + "/request_id");
 
     //Iniciando o Ciclo do Thread
@@ -65,6 +68,10 @@ void diane_climber::DianeClimberNodelet::onInit()
 
 }
 
+void diane_climber::DianeClimberNodelet::TreatKinectAngleCallBack(const std_msgs::Float64ConstPtr &msg)
+{
+    kinectAngle = msg->data;
+}
 
 diane_climber::DianeClimberNodelet::~DianeClimberNodelet()
 {
