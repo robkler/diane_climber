@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,11 +52,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  ClimbStair.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -65,10 +65,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -103,6 +103,8 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES diane_climber_lib
   CATKIN_DEPENDS nodelet roscpp std_msgs
+  message_generation
+
 #  DEPENDS system_lib
 )
 
@@ -126,7 +128,7 @@ set(DianeClimberDirSrc src/lib)
 file(GLOB_RECURSE DianeClimberHeaders "${DianeClimberDirInclude}/*.h" "${DianeClimberDirSrc}/*.h")
 file(GLOB_RECURSE DianeClimberSources "${DianeClimberDirSrc}/*.cpp")
 add_library(diane_climber_lib ${DianeClimberHeaders} ${DianeClimberSources})
-
+add_dependencies(diane_climber_lib ${PROJECT_NAME}_generate_messages_cpp)
 
 
 # add_library(diane_climber

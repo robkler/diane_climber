@@ -12,12 +12,10 @@
 #include <nodelet/nodelet.h>
 #include <string>
 
-#include <diane_octomap/StairInfo.h>
-#include <diane_octomap/StairArrayInfo.h>
 
-#include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
-#include <std_msgs/Bool.h>
+
+#include <diane_climber/ClimbStair.h>
 
 #include <controller/Control.h>
 #include <controller/RequestID.h>
@@ -34,28 +32,27 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 {
     /// ROS node handle.
     ros::NodeHandle nodeHandle;
-    ros::Publisher Pubcontroll;
 
-    ros::Subscriber msgBoolSub;
-    ros::Subscriber msgStair;
-    ros::Subscriber srvOriginIDcli;
-    ros::Subscriber subKinectAngle;
+    //Declarando os Publishers das Mensagens
+    ros::Publisher msgInputControlPub;
+
+
+
+    //Declarando os Services
+    ros::ServiceServer srvClimbStairSer;
+
+    //Declarando os Clientes
+    ros::ServiceClient srvOriginIDCli;
 
 protected:
 
+    //Métodos de Callback do servico de subida de escada
+    bool ClimbStairCallback(diane_climber::ClimbStair::Request & req, diane_climber::ClimbStair::Response & res);
 
 public:
-    unsigned char GetNewControlID();
-
-    void TreatBoolCallBack(const std_msgs::Bool::ConstPtr &msg);
-    void TreatStairCallBack(const diane_octomap::StairInfoConstPtr &msg);
-    void TreatArrayStairCallBack(const diane_octomap::StairArrayInfoConstPtr &msg);
-    void TreatKinectAngleCallBack (const std_msgs::Float64ConstPtr &msg);
-
     DianeClimberNodelet();
     void onInit();
     virtual ~DianeClimberNodelet();
-    void Publishcontroll();
 };
 
 
