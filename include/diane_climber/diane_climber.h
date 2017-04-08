@@ -78,6 +78,9 @@ protected:
     /// Mutex used to control the internal cycle thread.
     boost::mutex mutStartStop;
     std::atomic<double> kinectAngle;
+    std::atomic<double> velLin;
+    std::atomic<double> posFrontArm;
+    std::atomic<double> posRearArm;
 
 public:
     DianeClimber();
