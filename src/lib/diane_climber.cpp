@@ -69,33 +69,28 @@ void diane_climber::DianeClimber::ClimberStair(const float angle, const float di
 {
     if(dist<0.8)
     {
-
-        // subir armF
-        CreateMsgPos(0,0,90,0);
-        usleep(2000);
+        float ArmClimb = 50;
+        while (posFrontArm != ArmClimb)
+        {
+            CreateMsgPos(0 , 0 , ArmClimb , ArmClimb);
+        }
         //Andar em direçao a escada e ir verificando o acelerometro
-        CreateMsgVel(0.2,0,0,0);
-        usleep(dist*1000/0.2);
+        float linearSpeed = 0.5;
+        CreateMsgVel(linearSpeed , 0 , 0 , 0);
+        usleep(dist*1000/linearSpeed);
         // Quando estiver em cima da escada subir controladamente e verificar o acelerometro para quando ele começar a abaixar
         while(kinectAngle+2 < angle)
         {
-            CreateMsgVel(0.2,0,0,0);
+            CreateMsgVel(linearSpeed,0,0,0);
         }
-        //abaixar o armF
-        CreateMsgPos(0,0,0,0);
-        usleep(2000);
+        //abaixar os armF
+        float posArmClimb = 0;
+        while(posFrontArm != posArmClimb && posRearArm != posArmClimb)
+        {
 
-        //andar lentamente para sair da escada
-        while(kinectAngle < angle +2 || kinectAngle > angle -2)
-        {
-            CreateMsgVel(0.1,0,0,0);
+            CreateMsgPos(0.1,0,0,0);
         }
-        CreateMsgPos(0,0,-90,0);
-        usleep(2000);
-        while(kinectAngle>5)//preciso saber o angulo que tera de acordo com o braço
-        {
-            CreateMsgVel(0.1,0,0,0);
-        }
+
         CreateMsgPos(0,0,0,0);
 
     }

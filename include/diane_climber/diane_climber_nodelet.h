@@ -36,7 +36,8 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
     //Declarando os Publishers das Mensagens
     ros::Publisher msgInputControlPub;
 
-
+	//Declarando os Subscribers das Mensagens
+    ros::Subscriber msgFeedbackSub;
 
     //Declarando os Services
     ros::ServiceServer srvClimbStairSer;
@@ -46,10 +47,15 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 
 protected:
 
+	//Métodos de Tratamento de Subscribes
+    void TreatFeedback(const std_msgs::Float64MultiArrayConstPtr &msg);
+
+
     //Métodos de Callback do servico de subida de escada
     bool ClimbStairCallback(diane_climber::ClimbStair::Request & req, diane_climber::ClimbStair::Response & res);
 
 public:
+
     DianeClimberNodelet();
     void onInit();
     virtual ~DianeClimberNodelet();
