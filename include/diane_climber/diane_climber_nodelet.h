@@ -12,8 +12,8 @@
 #include <nodelet/nodelet.h>
 #include <string>
 
-#include <diane_octomap/StairInfo.h>
-#include <diane_octomap/StairArrayInfo.h>
+//#include <diane_octomap/StairInfo.h>
+//#include <diane_octomap/StairArrayInfo.h>
 
 #include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
@@ -40,6 +40,7 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
     ros::Subscriber msgStair;
     ros::Subscriber srvOriginIDcli;
     ros::Subscriber subKinectAngle;
+    ros::Subscriber msgFeedbackSub;
 
 protected:
 
@@ -48,10 +49,10 @@ public:
     unsigned char GetNewControlID();
 
     void TreatBoolCallBack(const std_msgs::Bool::ConstPtr &msg);
-    void TreatStairCallBack(const diane_octomap::StairInfoConstPtr &msg);
-    void TreatArrayStairCallBack(const diane_octomap::StairArrayInfoConstPtr &msg);
+   // void TreatStairCallBack(const diane_octomap::StairInfoConstPtr &msg);
+    //void TreatArrayStairCallBack(const diane_octomap::StairArrayInfoConstPtr &msg);
     void TreatKinectAngleCallBack (const std_msgs::Float64ConstPtr &msg);
-
+    void TreatFeedback(const std_msgs::Float64MultiArrayConstPtr &msg);
     DianeClimberNodelet();
     void onInit();
     virtual ~DianeClimberNodelet();

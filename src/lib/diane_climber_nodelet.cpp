@@ -13,22 +13,6 @@ void diane_climber::DianeClimberNodelet::TreatBoolCallBack(const std_msgs::Bool:
     Publishcontroll();
 }
 
-void diane_climber::DianeClimberNodelet::TreatStairCallBack(const diane_octomap::StairInfoConstPtr &msg)
-{
-
-    cout << msg->Max_Z << endl;
-}
-
-void diane_climber::DianeClimberNodelet::TreatArrayStairCallBack(const diane_octomap::StairArrayInfoConstPtr &msg)
-{
-    cout<<"msg"<<msg<<endl;
-    for (int i = 0; i < msg->Stairs.size(); i++)
-    {
-        cout<<msg->Stairs.at(i)<<endl;
-    }
-}
-
-
 
 diane_climber::DianeClimberNodelet::DianeClimberNodelet()
 {
@@ -57,9 +41,9 @@ void diane_climber::DianeClimberNodelet::onInit()
 
     msgBoolSub = nodeHandle.subscribe <std_msgs::Bool> ("/bool_msg", 10, &DianeClimberNodelet::TreatBoolCallBack, this);
 
-    msgStair = nodeHandle.subscribe <diane_octomap::StairArrayInfo> ("/diane_octomap/Modeled_Stairs_Info_All", 10, &DianeClimberNodelet::TreatArrayStairCallBack, this);
 
-    subKinectAngle = nodeHandle.subscribe <std_msgs::Float64> ("/cur_tilt_angle", 10, &DianeClimberNodelet::TreatKinectAngleCallBack, this);
+    msgFeedbackSub = nodeHandle.subscribe <std_msgs::Float64MultiArray> ("/Robot/r/diane_controller/Motion/Feedback", 10, &DianeClimberNodelet::TreatFeedback, this);
+
 //    srvOriginIDcli = nodeHandle.serviceClient<controller::RequestID>(controllerName + "/request_id");
 
     //Iniciando o Ciclo do Thread
@@ -71,6 +55,15 @@ void diane_climber::DianeClimberNodelet::onInit()
 void diane_climber::DianeClimberNodelet::TreatKinectAngleCallBack(const std_msgs::Float64ConstPtr &msg)
 {
     kinectAngle = msg->data;
+}
+
+void diane_climber::DianeClimberNodelet::TreatFeedback(const std_msgs::Float64MultiArrayConstPtr &msg)
+{
+    kinectAngle =  msg->data[1];
+    velLin = msg->data[2];
+    posFrontArm =msg->data[3];
+    posRearArm =msg->data[4];
+    cout<<kinectAngle<<endl;
 }
 
 diane_climber::DianeClimberNodelet::~DianeClimberNodelet()
