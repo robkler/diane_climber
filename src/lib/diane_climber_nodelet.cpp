@@ -37,13 +37,34 @@ void diane_climber::DianeClimberNodelet::onInit()
 
 
     ///Initializing the Clients
-    srvOriginIDCli = nodeHandle.serviceClient<controller::RequestID>(getName() + "/request_id");
+    //Modificar o caminho para o servico
+    srvOriginIDCli = nodeHandle.serviceClient<controller::RequestID>("/diane_robot/r/diane_controller/request_id");
 
 
 
     ///Inicializing the Thread's Cycle
     StartInternalCycle();
     teste1();
+
+
+
+}
+
+
+unsigned char diane_climber::DianeClimberNodelet::GetNewControlID()
+{
+    controller::RequestIDRequest req;
+    controller::RequestIDResponse res;
+
+    //Requisitando o servico que retorna um ID para o controlador. Se a requisicao não funcionar, utiliza 0.
+    if(srvOriginIDCli.call(req, res))
+    {
+        return res.id;
+    }
+    else
+    {
+        return 0;
+    }
 
 }
 
@@ -66,7 +87,7 @@ void diane_climber::DianeClimberNodelet::teste1()
 
 
 
-bool diane_climber::DianeClimberNodelet::ClimbStairCallback(diane_climber::ClimbStair::Request & req, diane_climber::ClimbStair::Response & res)
+bool diane_climber::DianeClimberNodelet::ClimbStairCallback(diane_climber::ClimbStair::Request &req, diane_climber::ClimbStair::Response &res)
 {
     //Initialize the climbing algorithm
     //diane_climber::DianeClimberNodelet::ClimberStair(req.stair_angle , 0.5);

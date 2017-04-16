@@ -57,12 +57,18 @@ protected:
 
 public:
 
+
     void ClimberStair(const float angle,const float dist);
 
     //Create MSG
     controller::Control CreateMsgPos(int Id, float velLin, float velAng , float posArmF, float posArmB);
     controller::Control CreateMsgVel(int Id, float velLin, float velAng , float velArmF, float velArmB);
   void teste1();
+
+    //Método para obter o ID gerado para o Controller
+    unsigned char GetNewControlID();
+
+
     DianeClimberNodelet();
     void onInit();
     virtual ~DianeClimberNodelet();
