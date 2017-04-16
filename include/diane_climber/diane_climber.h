@@ -85,10 +85,8 @@ protected:
 public:
     DianeClimber();
 
-    void ClimberStair(const float angle,const float dist);
     void onInit();
-    DianeClimberMsg* CreateMsgPos(double velLin, double velAng , double posArmF, double posArmB );
-    DianeClimberMsg* CreateMsgVel(double velLin, double velAng , double velArmF, double velArmB);
+
 
 
 
