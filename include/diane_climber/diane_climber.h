@@ -37,7 +37,6 @@ protected:
     double posArmB;
 
 
-
     virtual ~DianeClimberMsg();
 };
 
@@ -81,6 +80,8 @@ protected:
     std::atomic<double> velLin;
     std::atomic<double> posFrontArm;
     std::atomic<double> posRearArm;
+    unsigned int controlId = 0;
+
 
 public:
     DianeClimber();

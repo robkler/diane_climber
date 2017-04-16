@@ -56,6 +56,9 @@ protected:
 
 public:
 
+    //Método para obter o ID gerado para o Controller
+    unsigned char GetNewControlID();
+
     DianeClimberNodelet();
     void onInit();
     virtual ~DianeClimberNodelet();
