@@ -16,7 +16,6 @@
 
 #include <boost/thread.hpp>
 
-
 using namespace std;
 
 
@@ -76,6 +75,7 @@ class DianeClimber
 protected:
     /// Mutex used to control the internal cycle thread.
     boost::mutex mutStartStop;
+
     std::atomic<double> kinectAngle;
     std::atomic<double> velLin;
     std::atomic<double> posFrontArm;

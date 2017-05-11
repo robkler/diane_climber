@@ -18,9 +18,16 @@ int main(int argc, char* argv[])
     std::string nodelet_name = ros::this_node::getName();
     std::string nodelet_type = "diane_climber/DianeClimberNodelet";
     if(!n.load(nodelet_name, nodelet_type, remappings, non_ros_args))
-      return -1;
+      return -1;    
 
     ros::spin();
+
+//    ros::MultiThreadedSpinner spinner(4);
+//    spinner.spin();
+
+//    ros::AsyncSpinner spinner(20);
+//    spinner.start();
+//    ros::waitForShutdown();
 }
 
 

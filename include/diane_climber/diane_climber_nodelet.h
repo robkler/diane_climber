@@ -13,12 +13,15 @@
 #include <string>
 
 
+#include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Bool.h>
 
 #include <diane_climber/ClimbStair.h>
 
 #include <controller/Control.h>
 #include <controller/RequestID.h>
+
 
 namespace diane_climber {
 
@@ -30,15 +33,28 @@ namespace diane_climber {
  */
 class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 {
+    boost::mutex mutParam;
+
+    boost::mutex mutClimbParam;
+
+    boost::thread* climbThread;
+    bool startStairClimb;
+    bool climbingStair;
+
+
+
     /// ROS node handle.
     ros::NodeHandle nodeHandle;
 
+
     //Declarando os Publishers das Mensagens
     ros::Publisher msgInputControlPub;
-    ros::Subscriber teste;
 
 	//Declarando os Subscribers das Mensagens
     ros::Subscriber msgFeedbackSub;
+    ros::Subscriber msgClimbStairSub;
+
+    //ros::Subscriber teste2Sub;
 
     //Declarando os Services
     ros::ServiceServer srvClimbStairSer;
@@ -51,6 +67,16 @@ protected:
 	//Métodos de Tratamento de Subscribes
     void TreatFeedback(std_msgs::Float64MultiArray msg);
 
+    void TreatStartStairClimb(std_msgs::Bool msg);
+
+
+    //Método da Thread de background que realizará iniciará a subida da escada
+    void ClimbStairThreadTask();
+
+
+    //void Teste2(std_msgs::Bool msg);
+
+
 
     //Métodos de Callback do servico de subida de escada
     bool ClimbStairCallback(diane_climber::ClimbStair::Request & req, diane_climber::ClimbStair::Response & res);
@@ -58,12 +84,12 @@ protected:
 public:
 
 
-    void ClimberStair(const float angle,const float dist);
+    void ClimbStair(const float StairAngle);
 
     //Create MSG
     controller::Control CreateMsgPos(int Id, float velLin, float velAng , float posArmF, float posArmB);
     controller::Control CreateMsgVel(int Id, float velLin, float velAng , float velArmF, float velArmB);
-  void teste1();
+
 
     //Método para obter o ID gerado para o Controller
     unsigned char GetNewControlID();
