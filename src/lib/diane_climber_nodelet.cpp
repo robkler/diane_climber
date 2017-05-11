@@ -69,9 +69,13 @@ void diane_climber::DianeClimberNodelet::TreatFeedback(std_msgs::Float64MultiArr
     posFrontArm = msg.data[4];
     posRearArm = msg.data[5];
 
-    cout << "Ângulo do Kinect: " << kinectAngle << endl;
-
     mutParam.unlock();
+
+    cout << "Posição do braço frontal: " << posFrontArm << endl;
+    cout << "Posição do braço traseiro: " << posRearArm << endl;
+
+//    cout << "Ângulo do Kinect: " << kinectAngle << endl;
+
 
     cout << "TreatFeedback Finalizada!" << endl << endl;
 
@@ -168,12 +172,12 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
     int Id = 0;
 
     //Parameters
-    float linearSpeed = 0.5;
+    float linearSpeed = 0.1;
 
-    float InitFrontArmAngle = 50;
-    float InitRearArmAngle = 0;
-    float FinalFrontArmAngle = 0;
-    float FinalRearArmAngle = 0;
+    float InitFrontArmAngle = 45;
+    float InitRearArmAngle = 45;
+    float FinalFrontArmAngle = -10;
+    float FinalRearArmAngle = -10;
 
 
     for(int i=0; i<10; i++)
@@ -200,12 +204,13 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
 
         mutParam.unlock();
 
-        while ((posFArm <= InitFrontArmAngle) || (posRArm != InitRearArmAngle))//Put the arms in position
+
+        while ((posFArm <= (InitFrontArmAngle - 1)) || (posFArm >= (InitFrontArmAngle + 1)) || (posRArm <= (InitRearArmAngle - 1)) || (posRArm >= (InitRearArmAngle + 1)))//Put the arms in position
         {
             cout << "posFrontArm: " << posFrontArm << endl;
-            //cout << "posRearArm: " << posRearArm << endl;
+            cout << "posRearArm: " << posRearArm << endl;
 
-            Msg = CreateMsgPos(Id ,0 , 0 , InitFrontArmAngle , InitRearArmAngle);
+            Msg = CreateMsgPos(Id, 0, 0, InitFrontArmAngle, InitRearArmAngle);
             msgInputControlPub.publish(Msg);
 
             //Obtendo os valores
@@ -216,30 +221,36 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
 
             mutParam.unlock();
 
-            sleep(1);
+        }
+
+
+        // Go ahead until climb stair
+        while((kinectAngle + 2) < StairAngle)
+        {
+            cout << "kinectAngle: " << kinectAngle << endl;
+
+            Msg = CreateMsgVel(Id, linearSpeed, 0, 0, 0);
+            msgInputControlPub.publish(Msg);
 
         }
 
 
-//        // Go ahead until dont climb stair
-//        while((kinectAngle + 2) < StairAngle)
+        //Posição final
+        while((posFArm <= (FinalFrontArmAngle - 1)) || (posFArm >= (FinalFrontArmAngle + 1)) || (posRArm <= (FinalRearArmAngle - 1)) || (posRArm >= (FinalRearArmAngle + 1)))
+        {
+            Msg = CreateMsgPos(Id, 0, 0, FinalFrontArmAngle, FinalRearArmAngle);
+            msgInputControlPub.publish(Msg);
+        }
+
+
+
+//        //Estado Zero
+//        while((posFArm <= (-1)) || (posFArm >= (1)) || (posRArm <= (-1)) || (posRArm >= (1)))
 //        {
-//            cout << "kinectAngle: " << kinectAngle << endl;
-
-//            Msg = CreateMsgVel(Id, linearSpeed, 0, 0, 0);
+//            Msg = CreateMsgPos(Id, 0, 0, 0, 0);
 //            msgInputControlPub.publish(Msg);
-
 //        }
 
-//        while((posFrontArm != FinalFrontArmAngle) || (posRearArm != FinalRearArmAngle))
-//        {
-//            Msg = CreateMsgPos(Id, 0.1, 0, FinalFrontArmAngle, FinalRearArmAngle);
-//            msgInputControlPub.publish(Msg);
-//        }
-
-
-/*        Msg = CreateMsgPos(Id, 0, 0, FinalFrontArmAngle, FinalRearArmAngle);
-        msgInputControlPub.publish(Msg)*/;
 
     }
 
@@ -250,7 +261,7 @@ controller::Control diane_climber::DianeClimberNodelet::CreateMsgPos(int Id, flo
 {
     controller::Control Msg;
     Msg.originId = Id;
-    Msg.modes.push_back(3);
+    Msg.modes.push_back(4);
     Msg.data.push_back(velLin);
     Msg.data.push_back(velAng);
     Msg.data.push_back(posArmF);
@@ -262,7 +273,7 @@ controller::Control diane_climber::DianeClimberNodelet::CreateMsgVel(int Id, flo
 {
     controller::Control Msg;
     Msg.originId = Id;
-    Msg.modes.push_back(4);
+    Msg.modes.push_back(3);
     Msg.data.push_back(velLin);
     Msg.data.push_back(velAng);
     Msg.data.push_back(velArmF);
