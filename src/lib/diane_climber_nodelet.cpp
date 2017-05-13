@@ -22,10 +22,13 @@ void diane_climber::DianeClimberNodelet::onInit()
     ///Creating the Publishers/Subscribers/Services/Clients of the Diane Octomap Nodelet
     ///*********************************************************************************
 
+    startStairClimb = false;
+    climbingStair = false;
+
+    climbThread = new boost::thread(boost::bind(&DianeClimberNodelet::ClimbStairThreadTask, this));
+
+
     nodeHandle = getNodeHandle();
-
-//    nh.setCallbackQueue(&my_queue);
-
 
 
     ///Initializing the Publishers
@@ -33,8 +36,11 @@ void diane_climber::DianeClimberNodelet::onInit()
 
     ///Initializing the Subscribers
     msgFeedbackSub = nodeHandle.subscribe <std_msgs::Float64MultiArray> ("/robot/r/diane_controller/Motion/Feedback", 10, &DianeClimberNodelet::TreatFeedback, this);
-//    msgFeedbackSub = nh.subscribe <std_msgs::Float64MultiArray> ("/robot/r/diane_controller/Motion/Feedback", 10, &DianeClimberNodelet::TreatFeedback, this);
     msgClimbStairSub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/Start_Stair_Climb", 10, &DianeClimberNodelet::TreatStartStairClimb, this);
+
+
+    //teste2Sub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/teste2", 10, &DianeClimberNodelet::Teste2, this);
+
 
     ///Initializing the Services
     srvClimbStairSer = nodeHandle.advertiseService(getName() + "/Climb_Stair", &DianeClimberNodelet::ClimbStairCallback, this);
@@ -54,15 +60,21 @@ void diane_climber::DianeClimberNodelet::onInit()
 
 void diane_climber::DianeClimberNodelet::TreatFeedback(std_msgs::Float64MultiArray msg)
 {
+    cout << "TreatFeedback Iniciada!" << endl << endl;
+
     mutParam.lock();
 
     kinectAngle =  msg.data[1];
     velLin = msg.data[2];
     posFrontArm = msg.data[4];
-    cout<<"essa porra: essa porra: essa porra: essa porra: essa porra:"<< kinectAngle <<endl;
     posRearArm = msg.data[5];
 
+    cout << "Ângulo do Kinect: " << kinectAngle << endl;
+
     mutParam.unlock();
+
+    cout << "TreatFeedback Finalizada!" << endl << endl;
+
 }
 
 
@@ -70,10 +82,75 @@ void diane_climber::DianeClimberNodelet::TreatStartStairClimb(std_msgs::Bool msg
 {
     if (msg.data)
     {
-       diane_climber::DianeClimberNodelet::ClimbStair(25);
+        mutClimbParam.lock();
+
+        if(startStairClimb == false && climbingStair == false)
+        {
+            startStairClimb = true;
+        }
+
+        mutClimbParam.unlock();
 
     }
+
 }
+
+
+void diane_climber::DianeClimberNodelet::ClimbStairThreadTask()
+{
+    cout << "ClimbStairThreadTask iniciada!" << endl << endl;
+
+    while(this->nodeHandle.ok())
+    {
+        cout << "ClimbStairThreadTask está ativa!" << endl << endl;
+
+        mutClimbParam.lock();
+
+        if(startStairClimb)
+        {
+            cout << "Subida de escada iniciada!" << endl << endl;
+
+            climbingStair = true;
+
+            ClimbStair(25);
+
+
+            startStairClimb = false;
+
+            climbingStair = false;
+
+            cout << "Subida de escada finalizada!" << endl << endl;
+
+        }
+
+        mutClimbParam.unlock();
+
+        sleep(1);
+
+    }
+
+    cout << "ClimbStairThreadTask finalizada!" << endl << endl;
+
+}
+
+
+//void diane_climber::DianeClimberNodelet::Teste2(std_msgs::Bool msg)
+//{
+
+//    cout << "Início do Teste2" << endl;
+
+//    if(msg.data)
+//    {
+//        cout << "Teste2: True." << endl;
+//    }
+//    else
+//    {
+//        cout << "Teste2: False." << endl;
+//    }
+
+//    cout << "Fim do Teste2" << endl << endl;
+
+//}
 
 
 bool diane_climber::DianeClimberNodelet::ClimbStairCallback(diane_climber::ClimbStair::Request &req, diane_climber::ClimbStair::Response &res)
@@ -99,7 +176,7 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
     float FinalRearArmAngle = 0;
 
 
-    for(int i=0; i< 3; i++)
+    for(int i=0; i<10; i++)
     {
         Id = GetNewControlID();
 
@@ -109,7 +186,7 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
         }
         else
         {
-            sleep(300);
+            sleep(1);
         }
 
     }
@@ -138,6 +215,8 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
             posRArm = posRearArm;
 
             mutParam.unlock();
+
+            sleep(1);
 
         }
 

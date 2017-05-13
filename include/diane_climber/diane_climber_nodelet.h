@@ -13,6 +13,7 @@
 #include <string>
 
 
+#include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Bool.h>
 
@@ -21,7 +22,6 @@
 #include <controller/Control.h>
 #include <controller/RequestID.h>
 
-#include <future>
 
 namespace diane_climber {
 
@@ -35,11 +35,17 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 {
     boost::mutex mutParam;
 
+    boost::mutex mutClimbParam;
+
+    boost::thread* climbThread;
+    bool startStairClimb;
+    bool climbingStair;
+
+
+
     /// ROS node handle.
     ros::NodeHandle nodeHandle;
-//    ros::NodeHandle nh;
 
-//    ros::CallbackQueue my_queue;
 
     //Declarando os Publishers das Mensagens
     ros::Publisher msgInputControlPub;
@@ -47,6 +53,8 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 	//Declarando os Subscribers das Mensagens
     ros::Subscriber msgFeedbackSub;
     ros::Subscriber msgClimbStairSub;
+
+    //ros::Subscriber teste2Sub;
 
     //Declarando os Services
     ros::ServiceServer srvClimbStairSer;
@@ -60,6 +68,14 @@ protected:
     void TreatFeedback(std_msgs::Float64MultiArray msg);
 
     void TreatStartStairClimb(std_msgs::Bool msg);
+
+
+    //Método da Thread de background que realizará iniciará a subida da escada
+    void ClimbStairThreadTask();
+
+
+    //void Teste2(std_msgs::Bool msg);
+
 
 
     //Métodos de Callback do servico de subida de escada
