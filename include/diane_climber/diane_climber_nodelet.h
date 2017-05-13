@@ -56,8 +56,6 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 
     //ros::Subscriber teste2Sub;
 
-    //Declarando os Services
-    ros::ServiceServer srvClimbStairSer;
 
     //Declarando os Clientes
     ros::ServiceClient srvOriginIDCli;
@@ -76,10 +74,6 @@ protected:
 
     //void Teste2(std_msgs::Bool msg);
 
-
-
-    //Métodos de Callback do servico de subida de escada
-    bool ClimbStairCallback(diane_climber::ClimbStair::Request & req, diane_climber::ClimbStair::Response & res);
 
 public:
 

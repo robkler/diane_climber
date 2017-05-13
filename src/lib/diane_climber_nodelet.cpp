@@ -42,10 +42,6 @@ void diane_climber::DianeClimberNodelet::onInit()
     //teste2Sub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/teste2", 10, &DianeClimberNodelet::Teste2, this);
 
 
-    ///Initializing the Services
-    srvClimbStairSer = nodeHandle.advertiseService(getName() + "/Climb_Stair", &DianeClimberNodelet::ClimbStairCallback, this);
-
-
     ///Initializing the Clients
     //Modificar o caminho para o servico
     srvOriginIDCli = nodeHandle.serviceClient<controller::RequestID>("/robot/r/diane_controller/request_id");
@@ -151,14 +147,6 @@ void diane_climber::DianeClimberNodelet::ClimbStairThreadTask()
 //    cout << "Fim do Teste2" << endl << endl;
 
 //}
-
-
-bool diane_climber::DianeClimberNodelet::ClimbStairCallback(diane_climber::ClimbStair::Request &req, diane_climber::ClimbStair::Response &res)
-{
-    //Initialize the climbing algorithm
-    //diane_climber::DianeClimberNodelet::ClimbStair(req.stair_angle);
-    return true;
-}
 
 
 void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
