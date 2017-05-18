@@ -20,10 +20,10 @@ int main(int argc, char* argv[])
     if(!n.load(nodelet_name, nodelet_type, remappings, non_ros_args))
       return -1;    
 
-    ros::spin();
+   // ros::spin();
 
-//    ros::MultiThreadedSpinner spinner(4);
-//    spinner.spin();
+   ros::MultiThreadedSpinner spinner(4);
+    spinner.spin();
 
 //    ros::AsyncSpinner spinner(20);
 //    spinner.start();

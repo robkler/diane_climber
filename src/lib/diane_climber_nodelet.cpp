@@ -24,8 +24,9 @@ void diane_climber::DianeClimberNodelet::onInit()
 
     startStairClimb = false;
     climbingStair = false;
+    emergencyStop = false;
 
-    climbThread = new boost::thread(boost::bind(&DianeClimberNodelet::ClimbStairThreadTask, this));
+    climbThread = new boost::thread(boost::bind(&DianeClimberNodelet::StairClimbPositioningThreadTask, this));
 
 
     nodeHandle = getNodeHandle();
@@ -36,14 +37,8 @@ void diane_climber::DianeClimberNodelet::onInit()
 
     ///Initializing the Subscribers
     msgFeedbackSub = nodeHandle.subscribe <std_msgs::Float64MultiArray> ("/robot/r/diane_controller/Motion/Feedback", 10, &DianeClimberNodelet::TreatFeedback, this);
-    msgClimbStairSub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/Start_Stair_Climb", 10, &DianeClimberNodelet::TreatStartStairClimb, this);
-
-
-    //teste2Sub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/teste2", 10, &DianeClimberNodelet::Teste2, this);
-
-
-    ///Initializing the Services
-    srvClimbStairSer = nodeHandle.advertiseService(getName() + "/Climb_Stair", &DianeClimberNodelet::ClimbStairCallback, this);
+    msgStartClimbStairPositioningSub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/Start_Stair_Climb_Positioning", 10, &DianeClimberNodelet::TreatStartStairClimbPositioning, this);
+    msgEmergenyStopClimbPositioningSub = nodeHandle.subscribe <std_msgs::Bool> ("/robot/r/diane_climber/Emergency_Stop_Climb_Positioning", 10, &DianeClimberNodelet::TreatEmergencyStopClimbPositioning, this);
 
 
     ///Initializing the Clients
@@ -74,15 +69,12 @@ void diane_climber::DianeClimberNodelet::TreatFeedback(std_msgs::Float64MultiArr
     cout << "Posição do braço frontal: " << posFrontArm << endl;
     cout << "Posição do braço traseiro: " << posRearArm << endl;
 
-//    cout << "Ângulo do Kinect: " << kinectAngle << endl;
-
-
     cout << "TreatFeedback Finalizada!" << endl << endl;
 
 }
 
 
-void diane_climber::DianeClimberNodelet::TreatStartStairClimb(std_msgs::Bool msg)
+void diane_climber::DianeClimberNodelet::TreatStartStairClimbPositioning(std_msgs::Bool msg)
 {
     if (msg.data)
     {
@@ -100,13 +92,30 @@ void diane_climber::DianeClimberNodelet::TreatStartStairClimb(std_msgs::Bool msg
 }
 
 
-void diane_climber::DianeClimberNodelet::ClimbStairThreadTask()
+void diane_climber::DianeClimberNodelet::TreatEmergencyStopClimbPositioning(std_msgs::Bool msg)
 {
-    cout << "ClimbStairThreadTask iniciada!" << endl << endl;
+    if(msg.data)
+    {
+        mutClimbParam.lock();
+
+        if(climbingStair == true)
+        {
+            emergencyStop = true;
+        }
+
+        mutClimbParam.unlock();
+    }
+
+}
+
+
+void diane_climber::DianeClimberNodelet::StairClimbPositioningThreadTask()
+{
+    cout << "StairClimbPositioningThreadTask iniciada!" << endl << endl;
 
     while(this->nodeHandle.ok())
     {
-        cout << "ClimbStairThreadTask está ativa!" << endl << endl;
+        cout << "StairClimbPositioningThreadTask está ativa!" << endl << endl;
 
         mutClimbParam.lock();
 
@@ -116,8 +125,14 @@ void diane_climber::DianeClimberNodelet::ClimbStairThreadTask()
 
             climbingStair = true;
 
-            ClimbStair(25);
+            mutClimbParam.unlock();
 
+            //Start Climb Positioning
+            StairClimbPositioning(37);
+
+
+            //Enable varibles to start climb positioning
+            mutClimbParam.lock();
 
             startStairClimb = false;
 
@@ -133,39 +148,12 @@ void diane_climber::DianeClimberNodelet::ClimbStairThreadTask()
 
     }
 
-    cout << "ClimbStairThreadTask finalizada!" << endl << endl;
+    cout << "StairClimbPositioningThreadTask finalizada!" << endl << endl;
 
 }
 
 
-//void diane_climber::DianeClimberNodelet::Teste2(std_msgs::Bool msg)
-//{
-
-//    cout << "Início do Teste2" << endl;
-
-//    if(msg.data)
-//    {
-//        cout << "Teste2: True." << endl;
-//    }
-//    else
-//    {
-//        cout << "Teste2: False." << endl;
-//    }
-
-//    cout << "Fim do Teste2" << endl << endl;
-
-//}
-
-
-bool diane_climber::DianeClimberNodelet::ClimbStairCallback(diane_climber::ClimbStair::Request &req, diane_climber::ClimbStair::Response &res)
-{
-    //Initialize the climbing algorithm
-    //diane_climber::DianeClimberNodelet::ClimbStair(req.stair_angle);
-    return true;
-}
-
-
-void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
+void diane_climber::DianeClimberNodelet::StairClimbPositioning(const float StairAngle)
 {
 
     controller::Control Msg;
@@ -176,8 +164,8 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
 
     float InitFrontArmAngle = 45;
     float InitRearArmAngle = 45;
-    float FinalFrontArmAngle = -10;
-    float FinalRearArmAngle = -10;
+    float FinalFrontArmAngle = 0;
+    float FinalRearArmAngle = 0;
 
 
     for(int i=0; i<10; i++)
@@ -205,7 +193,7 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
         mutParam.unlock();
 
 
-        while ((posFArm <= (InitFrontArmAngle - 1)) || (posFArm >= (InitFrontArmAngle + 1)) || (posRArm <= (InitRearArmAngle - 1)) || (posRArm >= (InitRearArmAngle + 1)))//Put the arms in position
+        while (((posFArm <= (InitFrontArmAngle - 1)) || (posFArm >= (InitFrontArmAngle + 1)) || (posRArm <= (InitRearArmAngle - 1)) || (posRArm >= (InitRearArmAngle + 1))) && (emergencyStop == false))//Put the arms in position
         {
             cout << "posFrontArm: " << posFrontArm << endl;
             cout << "posRearArm: " << posRearArm << endl;
@@ -213,36 +201,86 @@ void diane_climber::DianeClimberNodelet::ClimbStair(const float StairAngle)
             Msg = CreateMsgPos(Id, 0, 0, InitFrontArmAngle, InitRearArmAngle);
             msgInputControlPub.publish(Msg);
 
+
             //Obtendo os valores
             mutParam.lock();
 
             posFArm = posFrontArm;
             posRArm = posRearArm;
 
+           mutParam.unlock();
+
+        }
+
+
+
+        //Commands robot to go forward until its pitch angle stabilizes in the stair angle
+
+        bool forwardBreak = false;
+
+        clock_t begin_time;
+        clock_t end_time;
+
+        while (!forwardBreak && emergencyStop == false)
+        {
+
+            mutParam.lock();
+
+            if(((kinectAngle + 2) < StairAngle) || ((kinectAngle - 2) > StairAngle))
+            {
+                cout << "kinectAngle: " << kinectAngle << endl;
+
+                Msg = CreateMsgVel(Id, linearSpeed, 0, 0, 0);
+                msgInputControlPub.publish(Msg);
+
+                begin_time = 0;
+                end_time = 0;
+
+            }
+            else
+            {
+                if (begin_time == 0)
+                {
+                    begin_time = clock();
+                }
+
+                end_time = clock();
+
+                cout << "Diferença de tempo: " << (end_time - begin_time)/CLOCKS_PER_SEC << endl;
+
+                if (((end_time - begin_time)/CLOCKS_PER_SEC) > 3)
+                {
+                    forwardBreak = true;
+
+                    cout << "Entrou!" << endl;
+
+                }
+                else
+                {
+                    cout << "kinectAngle Estabilizado: " << kinectAngle << endl;
+
+                    Msg = CreateMsgVel(Id, linearSpeed, 0, 0, 0);
+                    msgInputControlPub.publish(Msg);
+
+                }
+
+            }
+
             mutParam.unlock();
 
         }
 
 
-        // Go ahead until climb stair
-        while((kinectAngle + 2) < StairAngle)
-        {
-            cout << "kinectAngle: " << kinectAngle << endl;
-
-            Msg = CreateMsgVel(Id, linearSpeed, 0, 0, 0);
-            msgInputControlPub.publish(Msg);
-
-        }
-
-
         //Posição final
-        while((posFArm <= (FinalFrontArmAngle - 1)) || (posFArm >= (FinalFrontArmAngle + 1)) || (posRArm <= (FinalRearArmAngle - 1)) || (posRArm >= (FinalRearArmAngle + 1)))
+        while((((posFArm <= (FinalFrontArmAngle - 1)) || (posFArm >= (FinalFrontArmAngle + 1)) || (posRArm <= (FinalRearArmAngle - 1)) || (posRArm >= (FinalRearArmAngle + 1))) && (((kinectAngle + 2) > StairAngle) && ((kinectAngle - 2) < StairAngle))) && (emergencyStop == false))
         {
+
             Msg = CreateMsgPos(Id, 0, 0, FinalFrontArmAngle, FinalRearArmAngle);
             msgInputControlPub.publish(Msg);
+
         }
 
-
+        emergencyStop = false;
 
 //        //Estado Zero
 //        while((posFArm <= (-1)) || (posFArm >= (1)) || (posRArm <= (-1)) || (posRArm >= (1)))

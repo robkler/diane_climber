@@ -12,6 +12,7 @@
 #include <nodelet/nodelet.h>
 #include <string>
 
+#include <time.h>
 
 #include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
@@ -40,7 +41,7 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
     boost::thread* climbThread;
     bool startStairClimb;
     bool climbingStair;
-
+    bool emergencyStop;
 
 
     /// ROS node handle.
@@ -52,12 +53,10 @@ class DianeClimberNodelet : public DianeClimber, public nodelet::Nodelet
 
 	//Declarando os Subscribers das Mensagens
     ros::Subscriber msgFeedbackSub;
-    ros::Subscriber msgClimbStairSub;
+    ros::Subscriber msgStartClimbStairPositioningSub;
+    ros::Subscriber msgEmergenyStopClimbPositioningSub;
 
     //ros::Subscriber teste2Sub;
-
-    //Declarando os Services
-    ros::ServiceServer srvClimbStairSer;
 
     //Declarando os Clientes
     ros::ServiceClient srvOriginIDCli;
@@ -66,25 +65,19 @@ protected:
 
 	//Métodos de Tratamento de Subscribes
     void TreatFeedback(std_msgs::Float64MultiArray msg);
-
-    void TreatStartStairClimb(std_msgs::Bool msg);
-
-
-    //Método da Thread de background que realizará iniciará a subida da escada
-    void ClimbStairThreadTask();
+    void TreatStartStairClimbPositioning(std_msgs::Bool msg);
+    void TreatEmergencyStopClimbPositioning(std_msgs::Bool msg);
 
 
-    //void Teste2(std_msgs::Bool msg);
+    //Método da Thread de background que realizará iniciará o posicionamento para a subida da escada
+    void StairClimbPositioningThreadTask();
 
 
-
-    //Métodos de Callback do servico de subida de escada
-    bool ClimbStairCallback(diane_climber::ClimbStair::Request & req, diane_climber::ClimbStair::Response & res);
 
 public:
 
 
-    void ClimbStair(const float StairAngle);
+    void StairClimbPositioning(const float StairAngle);
 
     //Create MSG
     controller::Control CreateMsgPos(int Id, float velLin, float velAng , float posArmF, float posArmB);
